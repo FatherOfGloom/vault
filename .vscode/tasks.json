@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build vault",
+            "type": "process",
+            "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe",
+            "args": [
+                "-g",
+                "src\\main.c",
+                "src\\arena.c",
+                "src\\utils.c",
+                "src\\vault.c",
+                "-o",
+                "debug\\main.exe",
+                "-lws2_32"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Compile using MinGW-UCRT64"
+        }
+    ]
+}
