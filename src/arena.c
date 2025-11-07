@@ -1,4 +1,5 @@
 #include "arena.h"
+#include "utils.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -25,7 +26,7 @@ ArenaChunk* arena_chunk_alloc(size_t size_bytes) {
     size_t cap = ARENA_DEFAULT_CAP < size_bytes ? size_bytes : ARENA_DEFAULT_CAP;
 
     size_t allocation_size = sizeof(ArenaChunk) + sizeof(uintptr_t) * cap;
-    ArenaChunk* arena_chunk = malloc(allocation_size);
+    ArenaChunk* arena_chunk = nonnull(malloc(allocation_size));
     arena_chunk->next = NULL;
     arena_chunk->len = 0;
     arena_chunk->cap = cap;
