@@ -47,7 +47,7 @@ int file_read_alloc(Arena* a, File* file, Slice* buffer) {
 
     *buffer = slice_alloc(a, size_bytes);
 
-    fread(buffer, buffer->len, 1, file->handle);
+    fread(buffer->ptr, buffer->len, 1, file->handle);
 
     if (ferror(file->handle)) return errno;
 
@@ -55,7 +55,7 @@ int file_read_alloc(Arena* a, File* file, Slice* buffer) {
 }
 
 int file_write(File* file, Slice* buffer) {
-    fwrite(buffer, 1, buffer->len, file->handle);
+    fwrite(buffer->ptr, 1, buffer->len, file->handle);
     if (ferror(file->handle)) return errno;
 
     return 0;
@@ -172,7 +172,8 @@ vault_parse_err_t vault_parse(Vault* v, Slice* raw_data) {
     return VAULT_PARSE_ERR_NONE;
 }
 
-Vault vault_init(char* file_path, uint8_t* err) {
+Vault vault_init(char* file_path, vault_parse_err_t* err) {
+    *err = VAULT_PARSE_ERR_NONE;
     Vault vault = {0};
     vault.is_empty_payload = true;
     vault.metadata.is_password_set = false;
@@ -181,7 +182,6 @@ Vault vault_init(char* file_path, uint8_t* err) {
     assert(get_absolute_path(absolute_file_path_cstr, file_path));
 
     uint64_t file_path_hash = vault_hash(absolute_file_path_cstr, MAX_PATH_LEN);
-    printf("hash: %llu\n", file_path_hash);
 
     StrSlice absolute_file_path = str_slice_alloc(&vault.arena, MAX_PATH_LEN + sizeof(file_path_hash) + 1);
 
@@ -194,12 +194,13 @@ Vault vault_init(char* file_path, uint8_t* err) {
     );
 
     vault.absolute_file_path = absolute_file_path;
-
-    printf("new file_path: %s\n", absolute_file_path.ptr);
-
     int file_exists = access(absolute_file_path.ptr, F_OK) == 0;
 
+#ifdef VAULT_DEBUG
+    printf("hash: %llu\n", file_path_hash);
+    printf("new file_path: %s\n", absolute_file_path.ptr);
     printf("file exists: %s\n", file_exists ? "true" : "false");
+#endif  // VAULT_DEBUG
 
     File file = {0};
     
@@ -208,9 +209,13 @@ Vault vault_init(char* file_path, uint8_t* err) {
         Slice raw_contents = {0};
         assert(file_read_alloc(&vault.arena, &file, &raw_contents) == 0);
         *err = vault_parse(&vault, &raw_contents);
+        file_close(&file);
+    } else {
+        if (vault.is_empty_payload) {
+            vault.metadata.version = VAULT_VERSION;
+        }
     }
 
-    file_close(&file);
     return vault;
 }
 

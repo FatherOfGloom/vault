@@ -31,13 +31,9 @@ char* vault_parse_err_to_cstr(vault_parse_err_t err) {
     }
 }
 
+// TODO: move utils.* to vault.*
+// TODO: make arena into a single file library
 int main(int argc, char** argv) {
-#ifdef VAULT_DEBUG
-    while (*++argv) {
-        fprintf(stderr, "%s\n", *argv);
-    }
-#endif
-
     vault_parse_err_t parse_err = VAULT_PARSE_ERR_NONE;
 
     switch (argc - 1) {
@@ -63,7 +59,7 @@ int main(int argc, char** argv) {
                 panic("Unable to open vault due to an error: '%s'\n", vault_parse_err_to_cstr(parse_err));
             }
 
-            Slice input_password = slice_cstr_copy(argv[2], strlen(argv[2]));
+            Slice input_password = slice_cstr_copy(argv[1], strlen(argv[1]));
 
             uint64_t input_password_hash =
                 vault_hash(input_password.ptr, input_password.len);
@@ -88,9 +84,9 @@ int main(int argc, char** argv) {
                 panic("Unable to open vault due to an error: '%s'\n", vault_parse_err_to_cstr(parse_err));
             }
 
-            Slice input_password = slice_cstr_copy(argv[2], strlen(argv[2]));
+            Slice input_password = slice_cstr_copy(argv[1], strlen(argv[1]));
             uint64_t input_password_hash = vault_hash(input_password.ptr, input_password.len);
-            Slice new_entry = slice_cstr_clone(&vault.arena, argv[3], strlen(argv[3]));
+            Slice new_entry = slice_cstr_clone(&vault.arena, argv[2], strlen(argv[2]));
 
             if (vault.metadata.is_password_set) {
                 if (vault.metadata.psw_hash == input_password_hash) {
