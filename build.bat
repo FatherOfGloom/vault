@@ -4,7 +4,7 @@ set TARGET_NAME=vault-cli.exe
 set SRC_FILENAMES=main.c arena.c utils.c vault.c
 set ROOT_FOLDER=D:\Users\aauhabin1\dev\c\vault\
 @REM set CFLAGS=-Wall -Wextra -pedantic -ggdb -std=c11 -lraylib -lgdi32 -lwinmm -O1
-set CFLAGS=-Wall -Wextra -pedantic -ggdb -std=c11 -O1 -lws2_32
+set CFLAGS=-Wall -Wextra -pedantic -ggdb -fanalyzer -std=c11 -O1 -lws2_32
 
 setlocal enabledelayedexpansion
 
