@@ -61,10 +61,6 @@ int main(int argc, char** argv) {
 
             Slice input_password = slice_cstr_copy(argv[1], strlen(argv[1]));
 
-            if (input_password.len < 5) {
-                panic("Your password should contain at least 5 characters\n");
-            }
-
             uint64_t input_password_hash =
                 vault_hash(input_password.ptr, input_password.len);
 
@@ -81,6 +77,10 @@ int main(int argc, char** argv) {
                     panic("Incorrect password.\n");
                 }
             } else {
+                if (input_password.len < 5) {
+                    panic("Your password should contain at least 5 characters\n");
+                }
+
                 vault_set_password_hash(&vault, input_password_hash);
                 vault_write_to_file(&vault);
             }
