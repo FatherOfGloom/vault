@@ -105,6 +105,9 @@ uint8_t reader_try_read(Reader* r, void* dst_ptr, size_t bytes_to_read);
 
 #define slice(x) ((Slice){.ptr = &(x), .len = sizeof(x)})
 
+// creates a slice from a cstring literal (the slice doesn't copy \0)
+#define slicestr(x) ((Slice){.ptr = &(x), .len = len(x)})
+
 typedef struct Writer {
     Slice* buffer;
     size_t pivot;

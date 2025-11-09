@@ -95,7 +95,7 @@ Reader reader_new(Slice* buffer) {
 uint8_t reader_try_read_slice(Reader* r, Slice* dst_buffer, size_t bytes_to_read) {
     uint8_t* ptr = (uint8_t*)r->buffer->ptr + r->pivot;
     
-    uint8_t has_space = (uintptr_t)bytes_to_read + (uintptr_t)ptr <
+    uint8_t has_space = (uintptr_t)bytes_to_read + (uintptr_t)ptr <=
                         (uintptr_t)r->buffer->ptr + (uintptr_t)r->buffer->len;
 
     if (!has_space) {
@@ -112,7 +112,7 @@ uint8_t reader_try_read_slice(Reader* r, Slice* dst_buffer, size_t bytes_to_read
 uint8_t reader_try_read(Reader* r, void* dst_ptr, size_t bytes_to_read) {
     uint8_t* ptr = (uint8_t*)r->buffer->ptr + r->pivot;
 
-    uint8_t has_space = (uintptr_t)bytes_to_read + (uintptr_t)ptr <
+    uint8_t has_space = (uintptr_t)bytes_to_read + (uintptr_t)ptr <=
                         (uintptr_t)r->buffer->ptr + (uintptr_t)r->buffer->len;
 
     if (!has_space) {
@@ -136,6 +136,7 @@ vault_parse_err_t vault_parse(Vault* v, Slice* raw_data) {
     uint16_t version_be = 0;
     uint64_t password_hash_be = 0;
     uint32_t payload_len_be = 0;
+    Slice payload = {0};
 
     if (!reader_try_read(&reader, &version_be, sizeof(version_be))) {
         return VAULT_PARSE_ERR_NONE;
@@ -160,7 +161,10 @@ vault_parse_err_t vault_parse(Vault* v, Slice* raw_data) {
 
     v->metadata.payload_len = ntohl(payload_len_be);
 
-    Slice payload = {0};
+    if (v->metadata.payload_len == 0) {
+        return VAULT_PARSE_ERR_NONE;
+    }
+
 
     if (!reader_try_read_slice(&reader, &payload, v->metadata.payload_len)) {
         return VAULT_PARSE_ERR_INCORRECT_PAYLOAD_LEN;

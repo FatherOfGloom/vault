@@ -66,9 +66,13 @@ int main(int argc, char** argv) {
 
             if (vault.metadata.is_password_set) {
                 if (vault.metadata.psw_hash == input_password_hash) {
-                    StrSlice decrypted_payload = str_slice_from(vault_decrypt_payload(&vault, false, input_password));
+                    if (vault.is_empty_payload) {
+                        vault_print("Vault is empty");
+                    } else {
+                        StrSlice decrypted_payload = str_slice_from(vault_decrypt_payload(&vault, false, input_password));
 
-                    str_slice_print(&decrypted_payload);
+                        str_slice_print(&decrypted_payload);
+                    }
                 } else {
                     panic("Incorrect password.\n");
                 }
@@ -90,15 +94,18 @@ int main(int argc, char** argv) {
 
             if (vault.metadata.is_password_set) {
                 if (vault.metadata.psw_hash == input_password_hash) {
-                    vault_decrypt_ex(&new_entry, &new_entry, input_password);
-                    Slice new_payload_buffer = slice_alloc(&vault.arena, new_entry.len + vault.payload.len);
+                    Slice new_payload_buffer = slice_alloc(&vault.arena, new_entry.len + vault.payload.len + 1);
                     Writer writer = writer_new(&new_payload_buffer);
 
                     if (!vault.is_empty_payload) {
+                        vault_decrypt_ex(&vault.payload, &vault.payload, input_password);
                         writer_write(&writer, vault.payload);
                     }
 
                     writer_write(&writer, new_entry);
+                    writer_write(&writer, slicestr("\n"));
+
+                    vault_decrypt_ex(&new_payload_buffer, &new_payload_buffer, input_password);
                     vault.payload = new_payload_buffer;
                     vault_write_to_file(&vault);
                 } else {
