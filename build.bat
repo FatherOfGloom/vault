@@ -13,7 +13,6 @@ set SRC_PATHS=
 @REM for %%i in (%SRC_FILENAMES%) do (set SRC_PATHS=!SRC_PATHS! ..\src\%%i)
 for %%i in (%SRC_FILENAMES%) do (set SRC_PATHS=!SRC_PATHS! %ROOT_FOLDER%src\%%i)
 
-echo %SRC_PATHS%
 
 pushd %ROOT_FOLDER%
 
