@@ -206,10 +206,8 @@ Vault vault_init(char* file_path, vault_parse_err_t* err) {
     printf("file exists: %s\n", file_exists ? "true" : "false");
 #endif  // VAULT_DEBUG
 
-    File file = {0};
-    
     if (file_exists) {
-        file = file_open(absolute_file_path.ptr, "r");
+        File file = file_open(absolute_file_path.ptr, "rb");
         Slice raw_contents = {0};
         assert(file_read_alloc(&vault.arena, &file, &raw_contents) == 0);
         *err = vault_parse(&vault, &raw_contents);
