@@ -1,7 +1,7 @@
 @echo off
 
 set TARGET_NAME=vault-cli.exe
-set ROOT_FOLDER=C:\Users\aauhabin1\dev\c\vault\
+set ROOT_FOLDER=D:\Users\aauhabin1\dev\c\vault\
 set CLI_ARGS=%*
 
 pushd %ROOT_FOLDER%
